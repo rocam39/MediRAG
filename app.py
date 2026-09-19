@@ -71,22 +71,24 @@ with st.sidebar:
 
     st.header("📚 Knowledge Base")
 
-    pdf_files = [
-        file
-        for file in os.listdir(DOCUMENTS_PATH)
-        if file.lower().endswith(".pdf")
-    ]
+    if hasattr(st.session_state.pipeline.retriever.vector_store, "chunks"):
+        chunks = st.session_state.pipeline.retriever.vector_store.chunks
 
-    st.write(
-        f"**{len(pdf_files)} PDF(s)** available"
-    )
+        sources = sorted(
+            set(
+                chunk["source"]
+                for chunk in chunks
+                if "source" in chunk
+            )
+        )
 
-    if pdf_files:
+        st.write(
+            f"**{len(sources)} medical documents indexed**"
+        )
 
         with st.expander("View documents"):
-
-            for file in sorted(pdf_files):
-                st.write(f"• {file}")
+            for source in sources:
+                st.write(f"• {source}")
 
     st.divider()
 
@@ -103,18 +105,15 @@ with st.sidebar:
         "Similarity threshold",
         min_value=0.0,
         max_value=1.0,
-        value=0.5,
+        value=0.50,
         step=0.05
     )
 
     st.divider()
 
     if st.button("🗑️ Clear Conversation"):
-
         st.session_state.messages = []
-
         st.rerun()
-
 
 # --------------------------------------------------
 # Display previous messages
