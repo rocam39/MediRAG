@@ -1,5 +1,6 @@
 import os
 import requests
+import streamlit as st
 
 
 class LLMGenerator:
@@ -13,11 +14,19 @@ class LLMGenerator:
         self.api_key = os.getenv("HF_TOKEN")
 
         if not self.api_key:
+            try:
+                self.api_key = st.secrets["HF_TOKEN"]
+            except Exception:
+                self.api_key = None
+
+        if not self.api_key:
             raise ValueError(
                 "HF_TOKEN is not configured."
             )
 
-        self.model_name = "openai/gpt-oss-120b:fastest"
+        self.model_name = (
+            "openai/gpt-oss-120b:fastest"
+        )
 
     def generate(self, query, context):
 
